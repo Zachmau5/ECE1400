@@ -1,0 +1,32 @@
+import numpy as np
+import sympy as sy
+
+
+a=input(">")
+inputa=a.split("-")
+inputb=a.split("+")
+inputc=a.split("/")
+inputd=a.split("*")
+
+if len(inputa)==2:
+    print(inputa)
+    a1=float(inputa[0])
+    a2=float(inputa[1])
+    print(a1-a2)
+elif len(inputb)==2:
+    print(inputb)
+    a1=float(inputb[0])
+    a2=float(inputb[1])
+    print(a1+a2)
+elif len(inputc)==2:
+    print(inputc)
+    a1=float(inputc[0])
+    a2=float(inputc[1])
+    print(a1/a2)
+elif len(inputd)==2:
+    print(inputd)
+    a1=float(inputd[0])
+    a2=float(inputd[1])
+    print(a1*a2)
+else:
+    print("not a good operand")
