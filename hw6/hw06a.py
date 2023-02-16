@@ -1,68 +1,50 @@
-import math
-import argparse
+#!/usr/bin/python3
+import scipy
+import numpy as np
+from scipy import optimize
 import sys
 
-def FindT(ni, a=1, b=1000, element="Si"):
+
+def FindT(ni, min_val, max_val, element):
     if element == "Si":
-        B = 3.6e16
-        EG = 1.12
+        B, EG =1.08e31 , 1.12
     elif element == "Ge":
-        B = 1.5e19
-        EG = 0.67
+        B, EG = 2.31e30, 0.66
     elif element == "GeAs":
-        B = 5.5e19
-        EG = 0.82
+        B, EG = 1.27e29, 1.42
     else:
-        raise ValueError("Invalid element: " + element)
-    k = 8.617333262e-5 # Boltzmann constant in eV/K
-    def f(T):
-        return ni**2 - B * T**3 * math.exp(-EG/(k*T))
-    if f(min) * f(a) >= 0:
-        raise ValueError("No solution in the given range")
+        print("No Solution")
+        sys.exit(-1)
+    T = optimize.brentq(f,min_val, max_val,args=(ni,B, EG))
+    return T
 
-# =============================================================================
-# def main():
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument("ni", type=float)
-#     parser.add_argument("min", type=float, nargs="?", default=1)
-#     parser.add_argument("max", type=float, nargs="?", default=1000)
-#     parser.add_argument("element", type=str, nargs="?", default="Si")
-#     args = parser.parse_args()
-#     try:
-#         T = FindT(args.ni, args.a, args.b, args.element)
-#         print("T={:.2e}".format(T))
-#     except ValueError as e:
-#         print("No solution:", e)
-#         return -1
-# 
-# =============================================================================
+def f(T, ni, B, EG):
+    k=8.62e-5
+    return B*T**3*np.exp(-(EG/(k*T)))-ni**2
 
-#also try this #===========================================================================
-def main(args):
-    if len(args) < 2:
-        print("Usage: {} ni [min] [max] [element]".format(args[0]))
-        return -1
+def main():
+    min_val=1
+    max_val=1e3
+    element=1.12
+    vals=sys.argv
+    l = len(sys.argv)
 
-    ni = float(args[1])
-    min_val = float(args[2]) if len(args) > 2 else 1
-    max_val = float(args[3]) if len(args) > 3 else 1000
-    element = args[4] if len(args) > 4 else "Si"
-    print (args[1])
-    print (args[2])
-    print (args[3])
-    print (args[4])
-    
-    try:
-        T = FindT(ni, min_val, max_val, element)
-        print("T={:.2e}".format(T))
-    except ValueError as e:
-        print("No solution ", e)
+    if l ==1:
+        print("No solution")
+        sys.exit(-1)
 
+    if l==2:
+        ni=float(vals[1])
+        element="Si"
 
+    elif l ==5:
+        ni=float(vals[1])
+        min_val=float(vals[2])
+        max_val=float(vals[3])
+        element=vals[4]
+    T = FindT(ni, min_val, max_val, element)
+    print("T={:.2e}".format(T))
 
-# if __name__ == "__main__":
-#     sys.exit(main(sys.argv))
 if __name__ == "__main__":
-     main()
-
+    main()
 

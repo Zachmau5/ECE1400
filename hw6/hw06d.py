@@ -1,31 +1,18 @@
+#!/usr/bin/python3
 import numpy as np
 import matplotlib.pyplot as plt
+import control as ctl
 from scipy import signal
 
-#signal.transferfunction requires inputs of coeff of num/denom
-s = signal.TransferFunction([5, 25, 15, 5], [1, 23, 162, 360])
 
-# Bode plot
-w, mag, phase = signal.bode(s, np.logspace(10e-3, 10, num=500))
-fig, (ax1, ax2) = plt.subplots(2, 1)
-ax1.semilogx(w, mag)
-ax1.set_ylabel('Magnitude (dB)')
-ax2.semilogx(w, phase)
-ax2.set_ylabel('Phase (deg)')
-ax2.set_xlabel('Frequency (Hz)')
-plt.suptitle('Bode Plot of H(s)')
 
-# Pole-zero plot
-zeros = s.zeros
-poles = s.poles
-fig, ax = plt.subplots()
-ax.scatter(zeros.real, zeros.imag, marker='o', color='xkcd:vomit green', label='Zeros')
-ax.scatter(poles.real, poles.imag, marker='x', color='xkcd:eggplant purple', label='Poles')
-ax.set_xlabel('Real')
-ax.set_ylabel('Imaginary')
-ax.set_aspect('equal', 'box')
-plt.legend()
-plt.title('Pole-Zero Plot of H(s)')
-
-# Show the plots
-plt.show()
+import control as ctl
+def main():
+    s=ctl.TransferFunction.s
+    h=5*(s+5)*(s+3)*(s+1)/((s+6)*(s+12)*(s+5))
+    ctl.bode_plot(h, Hz=True, omega_limits=(0.01,10))
+    plt.show()
+    ctl.pzmap(h)
+    plt.show()
+if __name__ == "__main__":
+    main()
