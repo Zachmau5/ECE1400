@@ -6,7 +6,7 @@ bool isEven(int x){
 }
 
 bool isPrime(int x){
-    if (x<=1){
+    if (x < 1){
         return false;
     }
    for (int i = 2; i <= x/2; i++) {
@@ -14,6 +14,8 @@ bool isPrime(int x){
          return false;
       }
 }
+
+return true;
 }
 int main() {
    for (int i = 1; i <= 20; i++) {
@@ -22,6 +24,4 @@ int main() {
 
    return 0;
 }
-
-
 
