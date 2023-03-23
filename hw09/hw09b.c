@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 int main() {
     // Prompt the user to enter the filename
     char filename[100];
@@ -36,7 +37,7 @@ int main() {
     fclose(file);
 
     // Print the count of the search word
-    printf("The word %s was found %d times.\n", search_word, count);
+    printf("The word %s was found %d times\n", search_word, count);
 
     // Create an output filename by replacing the extension with ".out"
     char *output_filename = malloc(strlen(filename) + 5);
@@ -55,31 +56,27 @@ int main() {
         return 1; 
     }
 
-FILE *input_file = fopen(filename, "r");
-FILE *output_file = fopen("raven.out", "w");
+	FILE *input_file = fopen(filename, "r");
+	FILE *output_file = fopen("raven.out", "w");
 
-if (input_file == NULL || output_file == NULL) {
-    printf("Error opening file\n");
-    return 1;
-}
+	if (input_file == NULL || output_file == NULL) {
+    	printf("Error opening file\n");
+    	return 1;
+	}
 
-while (fgets(line, sizeof(line), input_file)) {
-    char *ptr = strstr(line, search_word);
-    while (ptr != NULL) {
-        int offset = ptr - line;
-        fprintf(output_file, "%.*s%s%s", offset, line, replace_word, ptr + strlen(search_word));
-        ptr = strstr(ptr + 1, search_word);
+	while (fgets(line, sizeof(line), input_file)) {
+	        char *p = strstr(line, search_word);
+        while (p != NULL) {
+            count++;
+            char temp[80];
+            strcpy(temp, p + strlen(search_word));
+            strcpy(p, replace_word);
+            strcat(p, temp);
+            p = strstr(p + strlen(replace_word), search_word);
+        }
+        fprintf(output_file, "%s", line);
     }
-    fputs(line, output_file);
-}
-
 fclose(input_file);
 fclose(output_file);
-
-
-    // Print a message to confirm that the new file has been written
-    printf("The new file %s has been created.\n", output_filename);
-
     return 0;
 }
-
