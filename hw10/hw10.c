@@ -1,78 +1,84 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[]) {
-    if (argc != 4) {
-        printf("Usage: program_name input_filename output_filename buffer_size\n");
-        exit(1);
-    }
 
-    char *input_filename = argv[1];
-    char *output_filename = argv[2];
-    int buffer_size = atoi(argv[3]);
+// creating a buffer function that will take 2 args of a
+// pointer to the buffer and the size of it.
 
-    // Allocate a buffer of floats of the given size
-    float *buffer = malloc(buffer_size * sizeof(float));
-    printf("size of buffer: %i\n",buffer_size);
-    if (buffer == NULL) {
-        printf("Error: Failed to allocate memory for buffer\n");
-        exit(1);
-    }
-
-    // Open the input file
-    FILE *input_file = fopen(input_filename, "r");
-    if (input_file == NULL) {
-        printf("Error: Failed to open input file '%s'\n", input_filename);
-        exit(1);
-    }
-
-    // Open the output file
-    FILE *output_file = fopen(output_filename, "w");
-    if (output_file == NULL) {
-        printf("Error: Failed to open output file '%s'\n", output_filename);
-        exit(1);
-    }
-
-    // Fill the circular buffer from the input file
-    int i = 0;
-    while (i < buffer_size && fscanf(input_file, "%f", &buffer[i]) == 1) {
-        i++;
-    }
-    int buffer_head = 0;
-    int buffer_tail = i % buffer_size;
-    int buffer_count = i;
-
-    // Calculate the average of the values in the buffer
+float circular_buffer_average(float *buffer, int size) {
     float sum = 0;
-    for (int j = 0; j < buffer_count; j++) {
-        sum += buffer[j];
+    for (int i = 0; i < size; i++) {
+        sum += buffer[i];
     }
-    float average = sum / buffer_size;
-
-    // Read the remaining values from the input file and update the circular buffer
-    float value;
-    while (fscanf(input_file, "%f", &value) == 1) {
-        // Rotate the circular buffer
-        buffer_head = (buffer_head + 1) % buffer_size;
-        buffer_tail = (buffer_tail + 1) % buffer_size;
-
-        // Replace the oldest value in the buffer with the new value
-        buffer[buffer_head] = value;
-
-        // Calculate the average of the values in the buffer
-        sum = 0.00000;
-        for (int j = buffer_head, count = 0; count < buffer_size; j = (j + 1) % buffer_size, count++) {
-            sum += buffer[j];
-        }
-        float average = (sum / buffer_size);
-        fprintf(output_file, "%.6f\n",average);
-    }
-
-    // Close the input and output files, and free the buffer memory
-    fclose(input_file);
-    fclose(output_file);
-    free(buffer);
-
-    return 0;
+    return sum / size;
 }
 
+
+int main(int argc, char *argv[]) {
+    if (argc != 4) {
+        printf("Usage: %s <input_filename> <output_filename> <buffer_size>\n", argv[0]);
+        return 1;
+    }
+
+    // creating args 1 2 3 for infile outfile and buffer
+    const char *input_filename = argv[1];
+    const char *output_filename = argv[2];
+    int buffer_size = atoi(argv[3]);
+
+    if (buffer_size <= 0) {
+        printf("Error: Buffer size must be a positive integer.\n");
+        return 1;
+    }
+
+    // reading the infile and catching an error if its NULL
+    FILE *input_file = fopen(input_filename, "r");
+    if (input_file == NULL) {
+        perror("Error opening input file");
+        return 1;
+    }
+
+    // writing to outfile and catching an error if its NULL
+    FILE *output_file = fopen(output_filename, "w");
+    if (output_file == NULL) {
+        perror("Error opening output file");
+        fclose(input_file);
+        return 1;
+    }
+
+    float *buffer = malloc(buffer_size * sizeof(float));
+    if (buffer == NULL) {
+        printf("Error: Unable to allocate memory for the buffer.\n");
+        fclose(input_file);
+        fclose(output_file);
+        return 1;
+    }
+
+    // Read from input_file into buffer and write from buffer into output_file
+    // ...
+
+    int input_count = 0;
+    int output_count = 0;
+    int buffer_index = 0;
+
+    float value;
+    while (fscanf(input_file, "%f", &value) == 1) {
+        buffer[buffer_index] = value;
+        buffer_index = (buffer_index + 1) % buffer_size;
+        input_count++;
+
+        if (input_count >= buffer_size) {
+            float average = circular_buffer_average(buffer, buffer_size);
+            fprintf(output_file, "%f\n", average);
+            output_count++;
+        }
+    }
+
+    printf("Input file contains %d values\n", input_count);
+    printf("Wrote %d values to output file\n", output_count);
+
+
+    free(buffer);
+    fclose(input_file);
+    fclose(output_file);
+    return 0;
+}
