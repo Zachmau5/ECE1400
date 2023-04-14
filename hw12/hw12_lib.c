@@ -92,6 +92,23 @@ void findAncestor(struct Person *n, const char *name, int gen) {
     return;
 
 }
+void findDescendants(struct Person *n, const char *name, int gen) {
+    if (strcmp(n->name, name) == 0) {
+        if (gen > 0) {
+            printf("child of %s and %s\n", n->father, n->mother);
+        }
+        return;
+    }
+    if (n->father != NULL) {
+        printf("child of %s and %s\n", n->father, n->mother);
+        findDescendants(FindPerson(n, n->father), name, gen+1);
+    }
+    if (n->mother != NULL) {
+        printf("child of %s and %s\n", n->father, n->mother);
+        findDescendants(FindPerson(n, n->mother), name, gen+1);
+    }
+}
+
 /*
 struct sNode *findKid(struct sNode *n, const char *name) {
     n=findHead(n);
